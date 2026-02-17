@@ -181,7 +181,17 @@ exports.forgotPassword = async (req, res) => {
     await sendEmail({
       to: user.email,
       subject: "Password Reset OTP - Valid for 10 Minutes",
-      html: `<h1>${otp}</h1>`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 500px; margin: auto; padding: 30px; border: 1px solid #ddd; border-radius: 12px;">
+          <h2 style="color: #6C63FF; text-align: center;">AuthApp - Password Reset</h2>
+          <p style="color: #555; text-align: center;">Your OTP code is:</p>
+          <div style="text-align: center; margin: 20px 0;">
+            <span style="font-size: 42px; font-weight: bold; letter-spacing: 12px; color: #6C63FF;">${otp}</span>
+          </div>
+          <p style="color: #888; text-align: center;">This OTP is valid for <strong>10 minutes</strong>.</p>
+          <p style="color: #aaa; text-align: center; font-size: 12px;">If you didn't request this, please ignore this email.</p>
+        </div>
+      `,
     });
 
     console.log("✅ OTP Email Sent");

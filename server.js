@@ -9,12 +9,36 @@ const app = express();
 
 // 🔌 Connect DB
 console.log("🔄 Connecting to MongoDB...");
-connectDB(); // connectDB me bhi console.log already hai
+connectDB();
 
 // 🛠 Middleware
 console.log("🛠 Setting up middleware...");
-app.use(cors());
+
+// =================== ✅ CORS CONFIG (FIXED) ===================
+const allowedOrigins = ["http://localhost:3000", "http://localhost:5173"];
+
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      // Allow requests with no origin (Postman, mobile apps)
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+      return callback(new Error("Not allowed by CORS"));
+    },
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  }),
+);
+
+// ✅ Preflight requests handle karna ZAROORI hai
+app.options("*", cors());
+
+// 🛡 Body parser
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 // 📦 Routes
 console.log("📦 Loading routes...");
@@ -24,7 +48,7 @@ app.use("/api/auth", authRoutes);
 // 🔍 Test Route
 app.get("/", (req, res) => {
   console.log("📥 / route hit");
-  res.json({ message: "Server is running!" });
+  res.json({ message: "✅ Server is running!" });
 });
 
 // 🚀 Start Server

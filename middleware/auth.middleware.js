@@ -38,7 +38,6 @@ const protect = async (req, res, next) => {
     }
 
     console.log("✅ User authenticated:", req.user._id);
-
     next();
   } catch (err) {
     console.log("🔥 Token verification error:", err.message);
