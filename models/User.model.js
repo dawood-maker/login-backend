@@ -25,7 +25,6 @@ const userSchema = new mongoose.Schema(
       required: [true, "Password is required"],
       minlength: [6, "Password must be at least 6 characters"],
     },
-    // OTP for password reset
     resetOTP: {
       type: String,
       default: null,
@@ -44,17 +43,36 @@ const userSchema = new mongoose.Schema(
   },
 );
 
-// Hash password before saving
+// 🔐 Hash password before saving
 userSchema.pre("save", async function (next) {
-  if (!this.isModified("password")) return next();
-  const salt = await bcrypt.genSalt(12);
-  this.password = await bcrypt.hash(this.password, salt);
-  next();
+  console.log("💾 Pre-save hook triggered for:", this.email);
+
+  if (!this.isModified("password")) {
+    console.log("🔁 Password not modified");
+    return next();
+  }
+
+  try {
+    console.log("🔒 Hashing password...");
+    const salt = await bcrypt.genSalt(12);
+    this.password = await bcrypt.hash(this.password, salt);
+    console.log("✅ Password hashed successfully");
+    next();
+  } catch (error) {
+    console.log("🔥 Error while hashing password:", error.message);
+    next(error);
+  }
 });
 
-// Compare password method
+// 🔍 Compare password method
 userSchema.methods.comparePassword = async function (enteredPassword) {
-  return await bcrypt.compare(enteredPassword, this.password);
+  console.log("🔎 Comparing password for:", this.email);
+
+  const isMatch = await bcrypt.compare(enteredPassword, this.password);
+
+  console.log("🔐 Password match result:", isMatch);
+
+  return isMatch;
 };
 
 module.exports = mongoose.model("User", userSchema);
